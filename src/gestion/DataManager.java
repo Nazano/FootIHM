@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import app.Enregistrement;
+
 public class DataManager {
 	List<String[]> data;
 	ArrayList<Enregistrement> enregisrements;
@@ -19,28 +21,28 @@ public class DataManager {
 	}
 	
 	/**
-	 * Trouve l'ensemble des enregistrements contenu dans les données
+	 * Trouve l'ensemble des enregistrements contenu dans les donnÃ©es
 	 */
 	public void findEnregistrements() {
 		
 	}
 	
 	/**
-	 * Récupérer le nombre d’enregistrements (informations de tous les joueurs à une date et un temps fixe).
+	 * ReÌ�cupeÌ�rer le nombre dâ€™enregistrements (informations de tous les joueurs aÌ€ une date et un temps fixe).
 	 * @return
 	 */
 	public Enregistrement getEnregistrement(Date date) {
-		
+		return null;
 	}
 	
 	/**
-	 * Récupérer les informations d’un enregistrement en fonction de son index (position de
-	 * l’enregistrements dans la séquence des enregistrements).
+	 * ReÌ�cupeÌ�rer les informations dâ€™un enregistrement en fonction de son index (position de
+	 * lâ€™enregistrements dans la seÌ�quence des enregistrements).
 	 * @param index
 	 * @return
 	 */
 	public Enregistrement getEnregistrement(int index) {
-			
+		 return null;
 	}
 	
 }
