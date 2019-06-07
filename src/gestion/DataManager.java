@@ -24,7 +24,9 @@ public class DataManager {
 	 * Trouve l'ensemble des enregistrements contenu dans les donnÃ©es
 	 */
 	public void findEnregistrements() {
-		
+		for(String[] l : data) {
+			
+		}
 	}
 	
 	/**
