@@ -23,8 +23,13 @@ public class Joueur {
 		this.energy = energy;
 		this.speed = speed;
 		this.total_distance = total_distance;
+	}
+
+	public int getId() {
+		return id;
 	} 
 		
-		
+	
+	
 	
 }

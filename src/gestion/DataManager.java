@@ -45,6 +45,7 @@ public class DataManager {
 				if(splitted.length == 2 && splitted[1].length() == 1) l[0] = l[0] + "0";
 			}
 			
+			//Récupère toutes les dates
 			for (String format : formats) {
 				try {
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
@@ -56,6 +57,7 @@ public class DataManager {
 			}
 		}
 		
+		//Crée tous les enregisrements
 		Enregistrement rec = new Enregistrement();
 		int intrevalleTemps = 50;
 		LocalDateTime start = dates.get(0);
