@@ -18,9 +18,13 @@ import app.Enregistrement;
 import app.Joueur;
 
 public class DataManager {
-	List<String[]> raw_data;
-	ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
+	private List<String[]> raw_data;
+	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
 	
+	public ArrayList<Enregistrement> getEnregisrements() {
+		return enregisrements;
+	}
+
 	public DataManager(String path) {
 		try {
 			raw_data = CsvUtils.readCSV(path);
@@ -75,16 +79,22 @@ public class DataManager {
 			}	
 			
 		}
-		System.out.println("intervalle = "+ intrevalleTemps + " ms");
+		
+		/*System.out.println("intervalle = "+ intrevalleTemps + " ms");
 		System.out.println("Nombre d'entrées: " + raw_data.size());
 		System.out.println("Nombre d'enregistrements: " + enregisrements.size());
 		double stats = 0;
 		for(Enregistrement e : enregisrements)
 			stats += e.size();
 		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregisrements.size()));
-		
+		*/
 	}
 	
+	/**
+	 * Crée un joueur à partir d'une ligne du jeu de donnée
+	 * @param data Le jeu de donné doit avoir la forme indiqué dans le papier
+	 * @return
+	 */
 	private Joueur rawDataToJoueur(String[] data) {
 		return new Joueur(
 				Integer.parseInt(data[1]),
@@ -96,24 +106,6 @@ public class DataManager {
 				Float.parseFloat(data[7]),
 				Float.parseFloat(data[8])
 				);
-	}
-	
-	/**
-	 * ReÌ�cupeÌ�rer le nombre dâ€™enregistrements (informations de tous les joueurs aÌ€ une date et un temps fixe).
-	 * @return
-	 */
-	public Enregistrement getEnregistrement(Date date) {
-		return null;
-	}
-	
-	/**
-	 * ReÌ�cupeÌ�rer les informations dâ€™un enregistrement en fonction de son index (position de
-	 * lâ€™enregistrements dans la seÌ�quence des enregistrements).
-	 * @param index
-	 * @return
-	 */
-	public Enregistrement getEnregistrement(int index) {
-		 return null;
 	}
 	
 }
