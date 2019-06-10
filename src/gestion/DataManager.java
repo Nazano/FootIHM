@@ -12,6 +12,7 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import app.Enregistrement;
@@ -20,6 +21,7 @@ import app.Joueur;
 public class DataManager {
 	private List<String[]> raw_data;
 	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
+	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des joueurs dans leur état initial
 	
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregisrements;
@@ -66,16 +68,22 @@ public class DataManager {
 		int intrevalleTemps = 50;
 		LocalDateTime start = dates.get(0);
 		LocalDateTime end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit());
+		int i = 0;
 		
-		for(int i = 0; i < dates.size(); i++) {
+		while(start.isBefore(dates.get(dates.size() - 1 ))) {
+			
 			if(dates.get(i).isEqual(start) || (dates.get(i).isAfter(start) && dates.get(i).isBefore(end))) {
-				rec.add(rawDataToJoueur(raw_data.get(i)));}
+				Joueur j = rawDataToJoueur(raw_data.get(i));
+				rec.add(j);
+				joueurs.add(j);
+				if(dates.get(i).isEqual(start))
+				i++;
+			}
 			else {
 				enregisrements.add(rec);
 				rec = new Enregistrement();
-				start = dates.get(i);
-				end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit());
-				
+				start = end;
+				end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit()); 
 			}	
 			
 		}
