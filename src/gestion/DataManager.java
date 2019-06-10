@@ -21,7 +21,8 @@ import app.Joueur;
 public class DataManager {
 	private List<String[]> raw_data;
 	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
-	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des joueurs dans leur état initial
+	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
+
 	
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregisrements;
