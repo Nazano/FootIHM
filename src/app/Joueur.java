@@ -15,6 +15,13 @@ public class Joueur implements Stats{
 	
 	
 	
+	public int[][] getPresenceTerrain() {
+		return presenceTerrain;
+	}
+	
+	public void setPresenceTerrain(int[][] presenceTerrain) {
+		this.presenceTerrain = presenceTerrain;
+	}
 	@Override
 	public double[][] calculerStats() {
 		
@@ -33,7 +40,11 @@ public class Joueur implements Stats{
 	}
 	@Override
 	public void ajouterPresence() {
-		presenceTerrain[(int)x_pos][(int)y_pos] =  presenceTerrain[(int)x_pos][(int)y_pos]++;
+		int X = (int)x_pos;
+		int Y =(int)y_pos;
+		if (X <0) X = 0;
+		if (Y <0) Y = 0;
+		presenceTerrain[X][Y] =  presenceTerrain[X][Y]++;
 		this.nbPosition ++;
 		
 	} 
@@ -50,6 +61,13 @@ public class Joueur implements Stats{
 		this.energy = energy;
 		this.speed = speed;
 		this.total_distance = total_distance;
+		this.presenceTerrain = new int [150][150];
+	/*	for (int i = 0 ; i<105;i++)
+		{	for(int j=0; j<68 ;j++)
+			{
+				this.presenceTerrain[i][j] = 0;
+			}
+		}*/
 	}
 
 	public int getId() {

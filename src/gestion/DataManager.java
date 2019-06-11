@@ -14,18 +14,20 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.function.Consumer;
 
 import app.Enregistrement;
 import app.Joueur;
 
 public class DataManager {
 	private List<String[]> raw_data;
-	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
+	private ArrayList<Enregistrement> enregistrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
 
 	
 	public ArrayList<Enregistrement> getEnregisrements() {
-		return enregisrements;
+		return enregistrements;
 	}
 
 	public DataManager(String path) {
@@ -76,12 +78,19 @@ public class DataManager {
 			if(dates.get(i).isEqual(start) || (dates.get(i).isAfter(start) && dates.get(i).isBefore(end))) {
 				Joueur j = rawDataToJoueur(raw_data.get(i));
 				rec.add(j);
+				/// ajouter stats 
+				Joueur j2 ;
+				if ((j2 = lastDataJoueur(j))!= null)
+				{	
+					j.setPresenceTerrain(j2.getPresenceTerrain());
+				}
+				j.ajouterPresence();
 				joueurs.add(j);
 				if(dates.get(i).isEqual(start))
 				i++;
 			}
 			else {
-				enregisrements.add(rec);
+				enregistrements.add(rec);
 				rec = new Enregistrement();
 				start = end;
 				end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit()); 
@@ -89,14 +98,14 @@ public class DataManager {
 			
 		}
 		
-		/*System.out.println("intervalle = "+ intrevalleTemps + " ms");
+		System.out.println("intervalle = "+ intrevalleTemps + " ms");
 		System.out.println("Nombre d'entrées: " + raw_data.size());
-		System.out.println("Nombre d'enregistrements: " + enregisrements.size());
+		System.out.println("Nombre d'enregistrements: " + enregistrements.size());
 		double stats = 0;
-		for(Enregistrement e : enregisrements)
+		for(Enregistrement e : enregistrements)
 			stats += e.size();
-		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregisrements.size()));
-		*/
+		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregistrements.size()));
+		
 	}
 	
 	/**
@@ -116,5 +125,27 @@ public class DataManager {
 				Float.parseFloat(data[8])
 				);
 	}
+	
+	private Joueur lastDataJoueur(Joueur J)
+	{
+		ListIterator<Enregistrement> iterator = enregistrements.listIterator(enregistrements.size()); // On précise la position initiale de l'iterator. Ici on le place à la fin de la liste
+		while(iterator.hasPrevious()){
+			
+		   Enregistrement item = iterator.previous();
+		   ListIterator<Joueur> iterator2 = item.listIterator(item.size());
+		   
+		   while(iterator2.hasPrevious()){
+			   
+			   Joueur j = iterator2.previous();
+			   if (j.getId() == J.getId())
+				   return j;
+			 
+		   }
+		} return null;		
+				
+	}
+	
+	
+	
 	
 }
