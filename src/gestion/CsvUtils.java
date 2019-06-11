@@ -13,7 +13,7 @@ import com.opencsv.CSVReaderBuilder;
 
 public class CsvUtils {
 
-	private static final char DEFAULT_SEPARATOR = ';';
+	private static final char DEFAULT_SEPARATOR = ',';
 	
 	public static List<String[]> readCSV(String path) throws IOException {
 		File file = new File(path);
@@ -30,7 +30,9 @@ public class CsvUtils {
 		    if (size == 0) {
 		        continue;
 		    }
+		    
 		    String debut = nextLine[0].trim();
+		    
 		    if (debut.length() == 0 && size == 1) {
 		        continue;
 		    }
@@ -41,7 +43,7 @@ public class CsvUtils {
 		    }
 		    data.add(nextLine);
 		}
-		data.remove(0); //Supprime l'entête
+		//data.remove(0); //Supprime l'entête
 		return data;
 	}
 }
