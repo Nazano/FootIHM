@@ -42,9 +42,8 @@ public class Joueur implements Stats{
 	public void ajouterPresence() {
 		int X = (int)x_pos;
 		int Y =(int)y_pos;
-		if (X <0) X = 0;
-		if (Y <0) Y = 0;
-		presenceTerrain[X][Y] =  presenceTerrain[X][Y]++;
+		if (X >0 && Y>0 ) 
+			presenceTerrain[X][Y] =  presenceTerrain[X][Y]++;
 		this.nbPosition ++;
 		
 	} 
@@ -62,12 +61,7 @@ public class Joueur implements Stats{
 		this.speed = speed;
 		this.total_distance = total_distance;
 		this.presenceTerrain = new int [150][150];
-	/*	for (int i = 0 ; i<105;i++)
-		{	for(int j=0; j<68 ;j++)
-			{
-				this.presenceTerrain[i][j] = 0;
-			}
-		}*/
+	
 	}
 
 	public int getId() {
@@ -100,6 +94,14 @@ public class Joueur implements Stats{
 	public String toString() {
 		// TODO Auto-generated method stub
 		return Integer.toString(id);
+	}
+
+	public float getX_pos() {
+		return x_pos;
+	}
+
+	public float getY_pos() {
+		return y_pos;
 	}
 	
 	

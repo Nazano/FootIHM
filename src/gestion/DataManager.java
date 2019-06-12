@@ -72,21 +72,19 @@ public class DataManager {
 		LocalDateTime start = dates.get(0);
 		LocalDateTime end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit());
 		int i = 0;
-		
-		while(start.isBefore(dates.get(dates.size() - 1 ))) {
+		while(start.isBefore(dates.get(dates.size() - 1))){
 			
 			if(dates.get(i).isEqual(start) || (dates.get(i).isAfter(start) && dates.get(i).isBefore(end))) {
 				Joueur j = rawDataToJoueur(raw_data.get(i));
 				rec.add(j);
 				/// ajouter stats 
 				Joueur j2 ;
-				if ((j2 = lastDataJoueur(j))!= null)
+				if ((j2 = lastDataJoueur(j.getId()))!= null)
 				{	
 					j.setPresenceTerrain(j2.getPresenceTerrain());
 				}
 				j.ajouterPresence();
 				joueurs.add(j);
-				if(dates.get(i).isEqual(start))
 				i++;
 			}
 			else {
@@ -97,7 +95,23 @@ public class DataManager {
 			}	
 			
 		}
+		/** Debug Code **/
 		
+		int cont=0;
+		
+		for(Enregistrement e : enregistrements)
+		{	
+			cont++;
+			for (Joueur j : e)
+			{
+				if (j.getX_pos() == 65.577209) System.out.println(cont);
+			}
+			
+		}
+		/*
+		System.out.println(enregistrements.get(10000));
+		System.out.println(enregistrements.get(10000).get(5).getX_pos());
+		System.out.println(enregistrements.get(10000).get(5));*/
 		System.out.println("intervalle = "+ intrevalleTemps + " ms");
 		System.out.println("Nombre d'entrées: " + raw_data.size());
 		System.out.println("Nombre d'enregistrements: " + enregistrements.size());
@@ -105,6 +119,7 @@ public class DataManager {
 		for(Enregistrement e : enregistrements)
 			stats += e.size();
 		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregistrements.size()));
+		 /**  **/ 
 		
 	}
 	
@@ -126,7 +141,7 @@ public class DataManager {
 				);
 	}
 	
-	private Joueur lastDataJoueur(Joueur J)
+	private Joueur lastDataJoueur(int joueurId)
 	{
 		ListIterator<Enregistrement> iterator = enregistrements.listIterator(enregistrements.size()); // On précise la position initiale de l'iterator. Ici on le place à la fin de la liste
 		while(iterator.hasPrevious()){
@@ -137,13 +152,54 @@ public class DataManager {
 		   while(iterator2.hasPrevious()){
 			   
 			   Joueur j = iterator2.previous();
-			   if (j.getId() == J.getId())
+			   if (j.getId() == joueurId)
 				   return j;
 			 
 		   }
 		} return null;		
 				
 	}
+	
+	public Integer getRecordNumber()
+	{
+		return enregistrements.size();
+	}
+
+	public Float getPos(int indexEnregistrement, int idJoueur) {
+		Float value = null;
+		Enregistrement E = this.enregistrements.get(indexEnregistrement);	
+		for (Joueur j : E)
+		{
+			if (j.getId() == idJoueur) value = j.getX_pos();
+		}
+		
+		return value ;
+	}
+
+	public Integer testMaxPos(int idJoueur) {
+		
+		 Joueur J = lastDataJoueur(idJoueur);
+		 int [][] terrain = J.getPresenceTerrain();
+		 Integer max = 0 ;
+		 for (int i=0; i<terrain.length ;i++)
+			{
+				for(int j = 0 ; j<terrain.length;j++)
+				{
+					
+					if (max <  terrain[i][j]) max =terrain[i][j] ;
+					
+				}
+			}
+		 return max;
+	}
+
+	public Integer MapCorner(int idJoueur) {
+		
+		 Joueur J = lastDataJoueur(idJoueur);
+		 int [][] terrain = J.getPresenceTerrain();
+		return terrain[0][0];
+	}
+	
 	
 	
 	
