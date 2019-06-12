@@ -1,17 +1,7 @@
 package gestion;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -41,62 +31,35 @@ public class DataManager {
 	 * Trouve l'ensemble des enregistrements contenu dans les donnÃ©es
 	 */
 	public void findEnregistrements() {
-		List<String> formats = Arrays.asList("yyyy-MM-dd HH:mm:ss.SS", "yyyy-MM-dd HH:mm:ss");
-		List<LocalDateTime> dates = new ArrayList<LocalDateTime>();
+		Enregistrement rec = new Enregistrement();
+		String currentDate = raw_data.get(0)[0];
 		
 		for(String[] l : raw_data) {
 			
-			//Rajoute un zero aux dizaines de milisecondes
-			if(l[1].contains(".")) {
-				String[] splitted = l[0].split("\\.");
-				if(splitted.length == 2 && splitted[1].length() == 1) l[0] = l[0] + "0";
-			}
-			
-			//Récupère toutes les dates
-			for (String format : formats) {
-				try {
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-					dates.add(LocalDateTime.parse(l[0], formatter));
-					break;
-				} catch (DateTimeParseException e) {
-
-				}
-			}
-		}
-		
-		//Crée tous les enregisrements
-		Enregistrement rec = new Enregistrement();
-		int intrevalleTemps = 50;
-		LocalDateTime start = dates.get(0);
-		LocalDateTime end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit());
-		int i = 0;
-		
-		while(start.isBefore(dates.get(dates.size() - 1 ))) {
-			
-			if(dates.get(i).isEqual(start) || (dates.get(i).isAfter(start) && dates.get(i).isBefore(end))) {
-				Joueur j = rawDataToJoueur(raw_data.get(i));
+			//Si on est dans le même intervalle de temps 
+			if(l[0].equals(currentDate)) {
+				Joueur j = rawDataToJoueur(l);
 				rec.add(j);
 				joueurs.add(j);
-				if(dates.get(i).isEqual(start))
-				i++;
 			}
-			else {
+			else { //Sinon change d'intervalle et ajoute l'enregistrement à la liste 
+				currentDate = l[0];
 				enregisrements.add(rec);
 				rec = new Enregistrement();
-				start = end;
-				end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit()); 
-			}	
+			}
 			
 		}
+
+		enregisrements.add(rec);
 		
-		/*System.out.println("intervalle = "+ intrevalleTemps + " ms");
+		System.out.println("intervalle = 50 ms");
 		System.out.println("Nombre d'entrées: " + raw_data.size());
 		System.out.println("Nombre d'enregistrements: " + enregisrements.size());
 		double stats = 0;
 		for(Enregistrement e : enregisrements)
 			stats += e.size();
 		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregisrements.size()));
-		*/
+		
 	}
 	
 	/**
