@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Consumer;
+import java.util.Objects;
 
 import app.Enregistrement;
 import app.Joueur;
@@ -14,13 +14,14 @@ public class DataManager {
 	private List<String[]> raw_data;
 	private ArrayList<Enregistrement> enregistrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
-
+	private String path = "";
 	
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregistrements;
 	}
 
 	public DataManager(String path) {
+		this.path = path;
 		try {
 			raw_data = CsvUtils.readCSV(path);
 		} catch (IOException e) {
@@ -36,30 +37,40 @@ public class DataManager {
 		Enregistrement rec = new Enregistrement();
 		String currentDate = raw_data.get(0)[0];
 		
-		for(String[] l : raw_data) {
-			//Si on est dans le même intervalle de temps 
-			if(l[0].equals(currentDate)) {
-				Joueur j = rawDataToJoueur(l);
-				rec.add(j);
-				/// ajouter stats 
-				Joueur j2 ;
-				if ((j2 = lastDataJoueur(j.getId()))!= null)
-				{	
-					j.setPresenceTerrain(j2.getPresenceTerrain());
-				}
-				j.ajouterPresence();
-				joueurs.add(j);
-			}
-			else { //Sinon change d'intervalle et ajoute l'enregistrement à la liste 
-				currentDate = l[0];
+		for(String[] l : new ArrayList<String[]>(raw_data)) {
+			
+			if(!l[0].equals(currentDate)) { //Si on est dans le même intervalle de temps 
+				currentDate = l[0];				
 				enregistrements.add(rec);
 				rec = new Enregistrement();
 			}
+					
+			Joueur j = rawDataToJoueur(l);
+			joueurs.add(j);
+			rec.add(j);
+			currentDate = l[0];
+			raw_data.remove(l);
+				
+			//Stats v2
+			Joueur j2 = this.getJoueur(Integer.parseInt(l[1]));
+			j2.ajouterPresence(Double.parseDouble(l[2]), Double.parseDouble(l[3]));
 			
-		}
+			//Stats v1
+			/*
+			/// ajouter stats 
+			Joueur j2 ;
+			if ((j2 = lastDataJoueur(j.getId())) != null)
+			{	
+				j.setPresenceTerrain(j2.getPresenceTerrain());
+			}
+			j.ajouterPresence();
+			joueurs.add(j);*/
 
-		enregistrements.add(rec);
-		
+		}
+		enregistrements.add(rec); //Ajout du dernier enregistrement
+
+		/** Debug **/
+		System.out.println(joueurs);
 		System.out.println("intervalle = 50 ms");
 		System.out.println("Nombre d'entrées: " + raw_data.size());
 		System.out.println("Nombre d'enregistrements: " + enregistrements.size());
@@ -67,7 +78,7 @@ public class DataManager {
 		for(Enregistrement e : enregistrements)
 			stats += e.size();
 		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregistrements.size()));
-		
+		/** **/
 	}
 	
 	/**
@@ -88,7 +99,16 @@ public class DataManager {
 				);
 	}
 	
-	private Joueur lastDataJoueur(int joueurId)
+	/**
+	 * 
+	 * @param id Id du joueur à chercher
+	 * @return Retourne l'instance du joueur associé à l'id, null si inexistant 
+	 */
+	public Joueur getJoueur(int id) {
+		return joueurs.stream().filter(j -> Objects.equals(j.getId(), new Integer(id))).findFirst().orElse(null);
+	}
+	
+	public Joueur lastDataJoueur(int joueurId)
 	{
 		ListIterator<Enregistrement> iterator = enregistrements.listIterator(enregistrements.size()); // On précise la position initiale de l'iterator. Ici on le place à la fin de la liste
 		while(iterator.hasPrevious()){
@@ -113,40 +133,38 @@ public class DataManager {
 	}
 
 	public Float getPos(int indexEnregistrement, int idJoueur) {
-		Float value = null;
+		/*Float value = null;
 		Enregistrement E = this.enregistrements.get(indexEnregistrement);	
 		for (Joueur j : E)
 		{
 			if (j.getId() == idJoueur) value = j.getX_pos();
-		}
-		
-		return value ;
-	}
-
-	public Integer testMaxPos(int idJoueur) {
-		
-		 Joueur J = lastDataJoueur(idJoueur);
-		 int [][] terrain = J.getPresenceTerrain();
-		 Integer max = 0 ;
-		 for (int i=0; i<terrain.length ;i++)
-			{
-				for(int j = 0 ; j<terrain.length;j++)
-				{
-					
-					if (max <  terrain[i][j]) max =terrain[i][j] ;
-					
-				}
-			}
-		 return max;
-	}
-
-	public Integer MapCorner(int idJoueur) {
-		
-		 Joueur J = lastDataJoueur(idJoueur);
-		 int [][] terrain = J.getPresenceTerrain();
-		return terrain[0][0];
+		}*/
+		return this.enregistrements.get(indexEnregistrement).stream().filter(j -> Objects.equals(j.getId(), idJoueur)).reduce((first, second) -> second).get().getX_pos();
+		//return value ;
 	}
 	
+	/**
+	 * Trouve la zone du terrain sur lequel un joueur à été le plus présent
+	 * @param idJoueur
+	 * @return
+	 */
+	public Integer getPresenceMax(int idJoueur) {
+
+		Joueur j = getJoueur(14);
+		int[][] terrain = j.getPresenceTerrain();
+		Integer max = 0;
+		
+		for (int x = 0; x < terrain.length; x++) {
+			for (int y = 0; y < terrain.length; y++) {
+
+				if (max < terrain[x][y])
+					max = terrain[x][y];
+
+			}
+		}
+		return max;
+	}
+
 	
 	
 	

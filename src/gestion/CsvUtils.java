@@ -46,4 +46,44 @@ public class CsvUtils {
 		//data.remove(0); //Supprime l'entête
 		return data;
 	}
+	
+	public static List<String[]> readCSV(String path, int start, int nbLines) throws IOException {
+		File file = new File(path);
+		FileReader fr = new FileReader(file);
+		CSVParser csvp = new CSVParserBuilder().withSeparator(DEFAULT_SEPARATOR).build();
+		CSVReader csvR = new CSVReaderBuilder(fr).withCSVParser(csvp).build();
+		
+		List<String[] > data = new ArrayList<String[] >();
+		String[] nextLine = null;
+		int cpt = 0;
+		while(cpt < start) {
+			if(csvR.readNext() == null)
+				return null;
+			cpt++;
+		}
+		cpt = 0;
+		while (((nextLine = csvR.readNext()) != null) && (cpt < nbLines)) {
+		    int size = nextLine.length;
+
+		    // ligne vide
+		    if (size == 0) {
+		        continue;
+		    }
+		    
+		    String debut = nextLine[0].trim();
+		    
+		    if (debut.length() == 0 && size == 1) {
+		        continue;
+		    }
+
+		    // ligne de commentaire
+		    if (debut.startsWith("#")) {
+		        continue;
+		    }
+		    data.add(nextLine);
+		    cpt++;
+		}
+		//data.remove(0); //Supprime l'entête
+		return data;
+	}
 }
