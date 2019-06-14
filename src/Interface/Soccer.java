@@ -6,9 +6,14 @@ package Interface;
 
 
 import java.net.URL;
+import java.util.ArrayList;
 
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 
+import app.Enregistrement;
+import app.Joueur;
+import gestion.DataManager;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -23,48 +28,31 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import utils.CameraManager;
+import utils.Draw;
+import utils.Fx3DGroup;
 
 public class Soccer extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+    	
+    	DataManager dm = new DataManager("2013-11-03_tromso_stromsgodset_first.csv");
+		dm.findEnregistrements();
+		System.out.println("fin chargement données");
+		ArrayList<Enregistrement> E = dm.getEnregisrements();
 
         //Create a Pane et graph scene root for the 3D content
         Group root3D = new Group();
         Pane pane3D = new Pane(root3D);
-
+        
+        //Create Draw 
+        Draw draw = new Draw();
+        
+       
         // Load geometry
-        ObjModelImporter objImporter = new ObjModelImporter();
-        try {
-			URL modelUrl = this.getClass().getResource("/assets/soccer.obj");
-			objImporter.read(modelUrl);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println(e.getMessage());
-		}
-        MeshView[] meshViews = objImporter.getImport();
-        Group stade = new Group(meshViews);
-        root3D.getChildren().add(stade);
-        
-        // Draw a line
-        
-        Cylinder cyl = createLine(new Point3D(5,0,0),new Point3D(-5,0,0));
-        root3D.getChildren().add(cyl);
-        
-        
-        // Draw an helix
-        
-        Group HelixNode = new Group();
-        Point3D oldVect = new Point3D(1, 0, 0);
-        for	 (int i = 0; i<100 ; i++)
-        {
-        	float t = i / 5.0f;
-        	Point3D newVect = new Point3D(Math.cos(t),-t/5.0f,Math.sin(t));
-        	// Draw a small line between the old and new 3D points
-        	Cylinder cyl2 = createLine(oldVect,newVect);
-        	oldVect = newVect;
-        	root3D.getChildren().add(cyl2);
-        }
+        Fx3DGroup field = draw.createField();
+        root3D.getChildren().add(field);
+
         
         // Add a camera group
         PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -87,11 +75,47 @@ public class Soccer extends Application {
         Scene scene = new Scene(pane3D, 600, 600, true,SceneAntialiasing.BALANCED);
         scene.setCamera(camera);
         scene.setFill(Color.gray(0.2));
+        
+        
+        //Add an animation timer 
+        final long startNanoTime = System.nanoTime();
+        new AnimationTimer() {
+        	
+        	Fx3DGroup[] players = new Fx3DGroup[16];
+	
+			@Override
+			public void handle(long currentNanoTime) {
+				double t = (currentNanoTime - startNanoTime )/ 50.0 / 1000000.0;
+				
+				// Add a player
+				int index = (int)Math.round(t);
+		        
+		        
+				for(Joueur j : E.get(index))
+		        {
+					
+					if (players[j.getId()]!=null)
+					{
+
+						//players[j.getId()].set3DTranslate(t*j.getSpeed()*(j.getX_pos()-52), 0, t*50*j.getSpeed()*(j.getY_pos()-34));
+						//root3D.getChildren().get(j.getId()).setTranslateX(j.getX_pos());
+					}else{
+						Fx3DGroup player = draw.createPlayer(j);
+			        	players[j.getId()]= player ; 	
+			        	root3D.getChildren().add(player);
+					}
+						
+						
+		        }
+				
+			}
+		}.start();
 
         //Add the scene to the stage and show it
         primaryStage.setTitle("Soccer Test");
         primaryStage.setScene(scene);
         primaryStage.show();
+        
     }
 
     public static void main(String[] args) {
@@ -100,23 +124,5 @@ public class Soccer extends Application {
 
 
     // From Rahel LÃ¼thy : https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
-    public Cylinder createLine(Point3D origin, Point3D target) {
-        Point3D yAxis = new Point3D(0, 1, 0);
-        Point3D diff = target.subtract(origin);
-        double height = diff.magnitude();
-
-        Point3D mid = target.midpoint(origin);
-        Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
-
-        Point3D axisOfRotation = diff.crossProduct(yAxis);
-        double angle = Math.acos(diff.normalize().dotProduct(yAxis));
-        Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
-
-        Cylinder line = new Cylinder(0.01f, height);
-
-        line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
-
-        return line;
-    }
-
+    
 }
