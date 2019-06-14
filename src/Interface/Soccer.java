@@ -81,25 +81,39 @@ public class Soccer extends Application {
         final long startNanoTime = System.nanoTime();
         new AnimationTimer() {
         	
-        	Fx3DGroup[] players = new Fx3DGroup[16];
+        	Fx3DGroup[] players = new Fx3DGroup[16]; // stocker les joueurs 
 	
 			@Override
 			public void handle(long currentNanoTime) {
 				double t = (currentNanoTime - startNanoTime )/ 50.0 / 1000000.0;
 				
 				// Add a player
-				int index = (int)Math.round(t);
+				int index = (int)Math.round(t); // désigne l'enregistrment à sélectionner
 		        
 		        
-				for(Joueur j : E.get(index))
+				for(Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements 
 		        {
 					
 					if (players[j.getId()]!=null)
 					{
-
-						//players[j.getId()].set3DTranslate(t*j.getSpeed()*(j.getX_pos()-52), 0, t*50*j.getSpeed()*(j.getY_pos()-34));
-						//root3D.getChildren().get(j.getId()).setTranslateX(j.getX_pos());
+						// le joueur existe déjà  : on le déplace
+						
+						
+						for(int i=0 ; i<15;i++)
+						{
+							if (root3D.getChildren().get(i)==players[j.getId()])
+							{	
+								
+								root3D.getChildren().get(i).setTranslateX(j.getX_pos()-52);
+								root3D.getChildren().get(i).setTranslateZ(j.getY_pos()-34);
+								//root3D.getChildren().get(i).setRotationAxis(new Point3D(j.getX_pos()-52,0,j.getY_pos()-34));
+								//root3D.getChildren().get(i).setRotationAxis(Rotate.Y_AXIS);
+								//root3D.getChildren().get(i).setRotate(j.getDirection()*180/3.1415923);
+							}
+						}	
+						
 					}else{
+						// le joueur n'existe pas : on le crée
 						Fx3DGroup player = draw.createPlayer(j);
 			        	players[j.getId()]= player ; 	
 			        	root3D.getChildren().add(player);
