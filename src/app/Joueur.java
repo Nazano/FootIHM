@@ -73,6 +73,10 @@ public class Joueur implements Stats{
 		this.energy = energy;
 		this.speed = speed;
 		this.total_distance = total_distance;
+
+	}
+	
+	public void initialiserTerrain() {
 		this.presenceTerrain = new int [150][150];	
 	}
 

@@ -1,6 +1,7 @@
 package gestion;
 
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +12,7 @@ import app.Enregistrement;
 import app.Joueur;
 
 public class DataManager {
-	private List<String[]> raw_data;
+	
 	private ArrayList<Enregistrement> enregistrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
 	private String path = "";
@@ -22,22 +23,22 @@ public class DataManager {
 
 	public DataManager(String path) {
 		this.path = path;
-		try {
-			raw_data = CsvUtils.readCSV(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	/**
 	 * Trouve l'ensemble des enregistrements contenu dans les donnÃ©es
 	 */
 	public void findEnregistrements() {
+		List<String[]> raw_data = new ArrayList<String[]>();
+		try {
+			raw_data = CsvUtils.readCSV(path);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		Enregistrement rec = new Enregistrement();
 		String currentDate = raw_data.get(0)[0];
-		
-		for(String[] l : new ArrayList<String[]>(raw_data)) {
+	   
+		for(String[] l : raw_data) {
 			
 			if(!l[0].equals(currentDate)) { //Si on est dans le même intervalle de temps 
 				currentDate = l[0];				
@@ -49,26 +50,10 @@ public class DataManager {
 			joueurs.add(j);
 			rec.add(j);
 			currentDate = l[0];
-			raw_data.remove(l);
-				
-			//Stats v2
-			Joueur j2 = this.getJoueur(Integer.parseInt(l[1]));
-			j2.ajouterPresence(Double.parseDouble(l[2]), Double.parseDouble(l[3]));
-			
-			//Stats v1
-			/*
-			/// ajouter stats 
-			Joueur j2 ;
-			if ((j2 = lastDataJoueur(j.getId())) != null)
-			{	
-				j.setPresenceTerrain(j2.getPresenceTerrain());
-			}
-			j.ajouterPresence();
-			joueurs.add(j);*/
-
 		}
 		enregistrements.add(rec); //Ajout du dernier enregistrement
-
+	
+		
 		/** Debug **/
 		System.out.println(joueurs);
 		System.out.println("intervalle = 50 ms");
@@ -79,6 +64,11 @@ public class DataManager {
 			stats += e.size();
 		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregistrements.size()));
 		/** **/
+	}
+	
+	public void loadStats() {
+		joueurs.stream().forEach(j -> j.initialiserTerrain());
+		enregistrements.stream().forEach(e -> e.stream().forEach(j -> getJoueur(j.getId()).ajouterPresence(j.getX_pos(), j.getY_pos())));
 	}
 	
 	/**
@@ -165,8 +155,7 @@ public class DataManager {
 		return max;
 	}
 
-	
-	
+
 	
 	
 }

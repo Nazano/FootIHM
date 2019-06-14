@@ -18,6 +18,7 @@ public class SimpleTest {
 		//myDataManager = new DataManager();
 		myDataManager = new DataManager("2013-11-03_tromso_stromsgodset_first.csv");
 		myDataManager.findEnregistrements();
+		myDataManager.loadStats();
 	}
 	
 	@Test
@@ -51,7 +52,7 @@ public class SimpleTest {
 	@Test
 	public void playerHeatMapCornerTest() {
 		//vérifier que le joueur #14 n'a jamais été dans le coin de corner le plus proche de l'origine du repère des enregistrements
-		Joueur J = myDataManager.lastDataJoueur(14);
+		Joueur J = myDataManager.getJoueur(14);
 		int [][] terrain = J.getPresenceTerrain();
 		assertEquals( new Integer(0), new Integer(terrain[0][0]));
 	}		
@@ -60,6 +61,5 @@ public class SimpleTest {
 	
 	
 }
-
 
 

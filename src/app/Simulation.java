@@ -17,9 +17,8 @@ public class Simulation {
 		dm.findEnregistrements();
 		System.out.println("-----------------------");
 		System.out.println(dm.getPos(2,5));
-		System.out.println("fin chargement données");
+		System.out.println("fin chargement donnï¿½es");
+		dm.loadStats();
 		System.out.println( dm.getPresenceMax(14));
-		ArrayList<Enregistrement> E = dm.getEnregisrements();
-		System.out.println(E.get(1));
-	}
+		}
 }
