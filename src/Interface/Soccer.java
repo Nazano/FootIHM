@@ -93,19 +93,20 @@ public class Soccer extends Application {
 		        
 				for(Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements 
 		        {
-					
+					Fx3DGroup player ;
 					if (players[j.getId()]!=null)
 					{
 						// le joueur existe déjà  : on le déplace
 						
-						
 						for(int i=0 ; i<15;i++)
 						{
+							
 							if (root3D.getChildren().get(i)==players[j.getId()])
 							{	
-								
-								root3D.getChildren().get(i).setTranslateX(j.getX_pos()-52);
-								root3D.getChildren().get(i).setTranslateZ(j.getY_pos()-34);
+								players[j.getId()].set3DTranslate(j.getX_pos()-52, 0, j.getY_pos()-34);
+								players[j.getId()].set3DRotate(0,j.getDirection()*58,0);
+								//root3D.getChildren().get(i).setTranslateX(j.getX_pos()-52);
+								//root3D.getChildren().get(i).setTranslateZ(j.getY_pos()-34);
 								//root3D.getChildren().get(i).setRotationAxis(new Point3D(j.getX_pos()-52,0,j.getY_pos()-34));
 								//root3D.getChildren().get(i).setRotationAxis(Rotate.Y_AXIS);
 								//root3D.getChildren().get(i).setRotate(j.getDirection()*180/3.1415923);
@@ -114,7 +115,7 @@ public class Soccer extends Application {
 						
 					}else{
 						// le joueur n'existe pas : on le crée
-						Fx3DGroup player = draw.createPlayer(j);
+						player = draw.createPlayer(j);
 			        	players[j.getId()]= player ; 	
 			        	root3D.getChildren().add(player);
 					}
