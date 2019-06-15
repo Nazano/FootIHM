@@ -1,5 +1,6 @@
 package gestion;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,22 +10,14 @@ import app.Enregistrement;
 import app.Joueur;
 
 public class DataManager {
-	private List<String[]> raw_data;
+	
 	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
+	private File dataFile;
 
-	
-	public ArrayList<Enregistrement> getEnregisrements() {
-		return enregisrements;
-	}
 
-	public DataManager(String path) {
-		try {
-			raw_data = CsvUtils.readCSV(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public DataManager(File file) {
+			dataFile = file;
 	}
 	
 	/**
@@ -32,34 +25,33 @@ public class DataManager {
 	 */
 	public void findEnregistrements() {
 		Enregistrement rec = new Enregistrement();
-		String currentDate = raw_data.get(0)[0];
-		
-		for(String[] l : raw_data) {
-			
-			//Si on est dans le même intervalle de temps 
-			if(l[0].equals(currentDate)) {
-				Joueur j = rawDataToJoueur(l);
-				rec.add(j);
-				joueurs.add(j);
-			}
-			else { //Sinon change d'intervalle et ajoute l'enregistrement à la liste 
-				currentDate = l[0];
-				enregisrements.add(rec);
-				rec = new Enregistrement();
-			}
-			
-		}
+		List<String[]> raw_data;
+		try {
+			raw_data = CsvUtils.readCSV(dataFile.getAbsolutePath());
 
-		enregisrements.add(rec);
-		
-		System.out.println("intervalle = 50 ms");
-		System.out.println("Nombre d'entrées: " + raw_data.size());
-		System.out.println("Nombre d'enregistrements: " + enregisrements.size());
-		double stats = 0;
-		for(Enregistrement e : enregisrements)
-			stats += e.size();
-		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregisrements.size()));
-		
+			String currentDate = raw_data.get(0)[0];
+
+			for (String[] l : raw_data) {
+
+				// Si on est dans le même intervalle de temps
+				if (l[0].equals(currentDate)) {
+					Joueur j = rawDataToJoueur(l);
+					rec.add(j);
+					joueurs.add(j);
+				} else { // Sinon change d'intervalle et ajoute l'enregistrement à la liste
+					currentDate = l[0];
+					enregisrements.add(rec);
+					rec = new Enregistrement();
+				}
+
+			}
+
+			enregisrements.add(rec);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Fin chargement enregistrements");
 	}
 	
 	/**
@@ -78,6 +70,10 @@ public class DataManager {
 				Float.parseFloat(data[7]),
 				Float.parseFloat(data[8])
 				);
+	}
+		
+	public ArrayList<Enregistrement> getEnregisrements() {
+		return enregisrements;
 	}
 	
 }
