@@ -14,10 +14,12 @@ public class DataManager {
 	private ArrayList<Enregistrement> enregisrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
 	private File dataFile;
+	private String titre;
 
 
 	public DataManager(File file) {
 			dataFile = file;
+			titre = file.getName();
 	}
 	
 	/**
@@ -74,6 +76,10 @@ public class DataManager {
 		
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregisrements;
+	}
+	
+	public String getTitreMatch() {
+		return titre;
 	}
 	
 }
