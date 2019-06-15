@@ -7,6 +7,9 @@ import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import app.Joueur;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.image.Image;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
@@ -64,11 +67,26 @@ public class Draw {
 			System.out.println(e.getMessage());
 		}
         MeshView[] meshViews = objImporter.getImport();
-        	//Create Fx3DGroup
-        Fx3DGroup player= new Fx3DGroup(meshViews);
-       
+        
+        //Create Fx3DGroup
+        Fx3DGroup player= new Fx3DGroup(meshViews); 
+        
+        //Initilaze the player position
         player.set3DRotate(0, j.getDirection()*58, 0);
     	player.set3DTranslate(j.getX_pos()-52, 0, j.getY_pos()-34);
+     
+       // At the creation of the player set billboard
+        Box boxBB = new Box(1, 1, 0.001);
+        Fx3DGroup billboard = new Fx3DGroup(boxBB);
+        billboard.useAffine();
+
+        player.getChildren().add(billboard);
+        
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(new Image(getClass().getResourceAsStream("/assets/soccer/09.png")));
+        boxBB.setMaterial(material);
+      
+       
     	
         return player;
 	}

@@ -1,8 +1,4 @@
-
 package Interface;
-
-
-
 
 
 import java.net.URL;
@@ -24,6 +20,7 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -93,35 +90,48 @@ public class Soccer extends Application {
 		        
 				for(Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements 
 		        {
-					Fx3DGroup player ;
+					
 					if (players[j.getId()]!=null)
 					{
 						// le joueur existe déjà  : on le déplace
 						
 						for(int i=0 ; i<15;i++)
 						{
-							
-							if (root3D.getChildren().get(i)==players[j.getId()])
+							Fx3DGroup player = players[j.getId()];
+							// on parcours la liste de joueurs et on selectionne l'objet s'il exite
+							if (root3D.getChildren().get(i)==player) 
 							{	
+								// refresh billboard 
+								
+								Point3D to = camera.localToScene(Point3D.ZERO);
+								Point3D yDir = new Point3D(0, 1, 0);
+								Point3D billboardOffset = new Point3D(0,-1,0);
+								                    
+								Point3D from = player.localToScene(billboardOffset);
+
+								Affine affine = new Affine();
+								affine.append(Fx3DGroup.lookAt(from,to,yDir));
+								player.getChildren().get(1).getTransforms().setAll(affine);
+								
+								// refresh player position
 								players[j.getId()].set3DTranslate(j.getX_pos()-52, 0, j.getY_pos()-34);
 								players[j.getId()].set3DRotate(0,j.getDirection()*58,0);
-								//root3D.getChildren().get(i).setTranslateX(j.getX_pos()-52);
-								//root3D.getChildren().get(i).setTranslateZ(j.getY_pos()-34);
-								//root3D.getChildren().get(i).setRotationAxis(new Point3D(j.getX_pos()-52,0,j.getY_pos()-34));
-								//root3D.getChildren().get(i).setRotationAxis(Rotate.Y_AXIS);
-								//root3D.getChildren().get(i).setRotate(j.getDirection()*180/3.1415923);
+								
+								
+								
 							}
 						}	
 						
 					}else{
 						// le joueur n'existe pas : on le crée
-						player = draw.createPlayer(j);
+						Fx3DGroup player = draw.createPlayer(j);
 			        	players[j.getId()]= player ; 	
 			        	root3D.getChildren().add(player);
 					}
 						
 						
 		        }
+				
 				
 			}
 		}.start();
@@ -138,6 +148,5 @@ public class Soccer extends Application {
     }
 
 
-    // From Rahel LÃ¼thy : https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
     
 }
