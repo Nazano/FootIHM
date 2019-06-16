@@ -1,86 +1,36 @@
 package Interface;
 
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 
-import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 
 import app.Enregistrement;
 import app.Joueur;
 import gestion.DataManager;
 import javafx.animation.AnimationTimer;
-import javafx.application.Application;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
-import javafx.stage.Stage;
-import utils.CameraManager;
 import utils.Draw;
 import utils.Fx3DGroup;
 
-public class Soccer extends Application {
+public class Soccer  {
 
-    @Override
-    public void start(Stage primaryStage) {
-    	File file = new File("2013-11-03_tromso_stromsgodset_first.csv");
-    	DataManager dm = new DataManager(file);
-		dm.findEnregistrements();
-		System.out.println("fin chargement données");
-		ArrayList<Enregistrement> E = dm.getEnregisrements();
-
-        //Create a Pane et graph scene root for the 3D content
-        Group root3D = new Group();
-        Pane pane3D = new Pane(root3D);
-        
+    
+    public static void Animation(DataManager dataManager,Group root3D,PerspectiveCamera camera)
+    {
+    	
+    	ArrayList<Enregistrement> E = dataManager.getEnregisrements();
         //Create Draw 
         Draw draw = new Draw();
-        
-       
-        // Load geometry
-        Fx3DGroup field = draw.createField();
-        root3D.getChildren().add(field);
-
-        
-        // Add a camera group
-        PerspectiveCamera camera = new PerspectiveCamera(true);
-        new CameraManager(camera, pane3D, root3D);
-
-        // Add point light
-        PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(-180);
-        light.setTranslateY(-90);
-        light.setTranslateZ(-120);
-        light.getScope().addAll(root3D);
-        root3D.getChildren().add(light);
-
-        // Add ambient light
-        AmbientLight ambientLight = new AmbientLight(Color.WHITE);
-        ambientLight.getScope().addAll(root3D);
-        root3D.getChildren().add(ambientLight);
-
-        // Create scene
-        Scene scene = new Scene(pane3D, 600, 600, true,SceneAntialiasing.BALANCED);
-        scene.setCamera(camera);
-        scene.setFill(Color.gray(0.2));
-        
-        
-        //Add an animation timer 
+    	 //Add an animation timer 
         final long startNanoTime = System.nanoTime();
         new AnimationTimer() {
         	
         	Fx3DGroup[] players = new Fx3DGroup[16]; // stocker les joueurs 
-	
+        	Fx3DGroup[] billboards = new Fx3DGroup[16]; // stocker les numéros 
+        
+        	
 			@Override
 			public void handle(long currentNanoTime) {
 				double t = (currentNanoTime - startNanoTime )/ 50.0 / 1000000.0;
@@ -96,9 +46,11 @@ public class Soccer extends Application {
 					{
 						// le joueur existe déjà  : on le déplace
 						
-						for(int i=0 ; i<15;i++)
+						for(int i=0 ; i<root3D.getChildren().size();i++)
 						{
 							Fx3DGroup player = players[j.getId()];
+							Fx3DGroup billboard = billboards[j.getId()];
+							
 							// on parcours la liste de joueurs et on selectionne l'objet s'il exite
 							if (root3D.getChildren().get(i)==player) 
 							{	
@@ -112,13 +64,12 @@ public class Soccer extends Application {
 
 								Affine affine = new Affine();
 								affine.append(Fx3DGroup.lookAt(from,to,yDir));
-								player.getChildren().get(1).getTransforms().setAll(affine);
+								billboard.getTransforms().setAll(affine);
 								
 								// refresh player position
-								players[j.getId()].set3DTranslate(j.getX_pos()-52, 0, j.getY_pos()-34);
-								players[j.getId()].set3DRotate(0,j.getDirection()*58,0);
-								
-								
+								player .set3DTranslate(j.getX_pos()-52, 0, j.getY_pos()-34);
+								player .set3DRotate(0,j.getDirection()*58,0);
+
 								
 							}
 						}	
@@ -126,8 +77,11 @@ public class Soccer extends Application {
 					}else{
 						// le joueur n'existe pas : on le crée
 						Fx3DGroup player = draw.createPlayer(j);
-			        	players[j.getId()]= player ; 	
+						Fx3DGroup billboard = draw.createBillboard(j);
+			        	players[j.getId()]= player ; 
+			        	billboards[j.getId()]=billboard;
 			        	root3D.getChildren().add(player);
+			        	root3D.getChildren().add(billboard);
 					}
 						
 						
@@ -136,16 +90,6 @@ public class Soccer extends Application {
 				
 			}
 		}.start();
-
-        //Add the scene to the stage and show it
-        primaryStage.setTitle("Soccer Test");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
 
