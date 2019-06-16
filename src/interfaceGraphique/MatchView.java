@@ -2,15 +2,21 @@ package interfaceGraphique;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import Interface.Soccer;
+import app.Enregistrement;
+import app.Joueur;
 import gestion.DataManager;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -40,10 +46,13 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import utils.CameraManager;
 import utils.Draw;
 import utils.Fx3DGroup;
+import utils.Joueur3D;
 
 public class MatchView implements Initializable {
 	
-	private static DataManager dm;
+	private DataManager dm;
+	private ArrayList<Joueur3D> players = new ArrayList<Joueur3D>();
+	private AnimationTimer anim;
 	
 	@FXML
 	private Label lblMinutes, lblSecondes, lblNomMatch, lblInfoMatch, lblJoueurSelec, lblInfoJoueur;
@@ -100,18 +109,19 @@ public class MatchView implements Initializable {
         root3D.getChildren().add(ambientLight);
 
         // Create scene
-        SubScene subscene = new SubScene(pane3D, 600, 600, true,SceneAntialiasing.BALANCED);
+        SubScene subscene = new SubScene(root3D, 600, 600, true,SceneAntialiasing.BALANCED);
         subscene.setCamera(camera);
         subscene.setFill(Color.gray(0.2));
         pane3D.getChildren().add(subscene);
+
         
-      
-	
-		
+
+        
 		menuItemOpen.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				openFile();	
+				animation(camera, root3D);
 			}
 		});
 		
@@ -134,22 +144,29 @@ public class MatchView implements Initializable {
 
 			@Override
 			public void handle(ActionEvent event) {
-				
-				if (dm != null)
-				{
-					
-					Soccer.Animation(dm,root3D,camera);
-				}
-				
+				if(!Objects.isNull(dm))
+					anim.start();	
+				System.out.println("Demarrer");
 			}
-			
-			
+
 			
 		});
+		
+		btnPause.setOnAction(new EventHandler<ActionEvent>() {
 
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Pause");
+				if(!Objects.isNull(dm))
+					anim.stop();
+			}
+		});
+		
+		
+		
 	}
 	
-	public static DataManager getDataManager() {
+	public DataManager getDataManager() {
 		if(dm == null)
 			throw(new NullPointerException("DataManager pas initialis√©"));
 		return dm;
@@ -157,6 +174,7 @@ public class MatchView implements Initializable {
 	
 	private void openFile() {
 		FileChooser fc = new FileChooser();
+		fc.setInitialDirectory(FileSystems.getDefault().getPath(".").toAbsolutePath().toFile());
 		fc.getExtensionFilters().add(new ExtensionFilter("CSV Files", "*.csv"));
 		fc.setTitle("Choissisez un fichier de donn√©e CSV");
 		File selectedFile = fc.showOpenDialog(Main.getPrimaryStage());
@@ -175,8 +193,9 @@ public class MatchView implements Initializable {
 		sb.append("Dur√©e du match = " + milisecToFormatTime(dm.getEnregisrements().size() * 50) + "\n");
 		lblInfoMatch.setText(sb.toString());
 	}
+
 	
-	private String milisecToFormatTime(long millisecondsSinceEpoch) {
+	public String milisecToFormatTime(long millisecondsSinceEpoch) {
 		Instant instant = Instant.ofEpochMilli ( millisecondsSinceEpoch );
 		ZonedDateTime zdt = ZonedDateTime.ofInstant ( instant , ZoneOffset.UTC );
 
@@ -201,6 +220,39 @@ public class MatchView implements Initializable {
         		Platform.exit();
 			System.exit(0);
         }     
+	}
+	
+	public void animation(PerspectiveCamera camera, Group root3D) {
+		final long startNanoTime = System.nanoTime();
+
+		ArrayList<Enregistrement> E = dm.getEnregisrements();
+		double tMax = E.size()*50;
+		sliderLecture.setMajorTickUnit(500);
+		sliderLecture.setMax(tMax);
+		
+		anim = new AnimationTimer() {
+
+			@Override
+			public void handle(long currentNanoTime) {
+				double raw_time = (currentNanoTime - startNanoTime) / 1000000.0;
+				double t = (currentNanoTime - startNanoTime) / 50.0 / 1000000.0;
+				lblMinutes.setText(new MatchView().milisecToFormatTime(Double.valueOf(raw_time).longValue()));
+				sliderLecture.setValue(raw_time);
+				int index = (int) Math.round(t); // dÈsigne l'enregistrment ‡ sÈlectionner
+
+				for (Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements
+				{
+					if (players.contains(j)) { // le joueur existe dÈj‡ : on le dÈplace
+						Joueur3D j3D = players.stream().filter(j3 -> j3.equals(j)).findFirst().get();
+						j3D.updateBillboard();
+						j3D.updateJoueur3D(j);
+					} else // le joueur n'existe pas : on le crÈe
+						players.add(new Joueur3D(j, camera, root3D));
+
+				}
+
+			}
+		};
 	}
 	
 	public void fermerFichier() {

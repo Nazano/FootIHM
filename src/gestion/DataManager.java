@@ -21,7 +21,10 @@ public class DataManager {
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregistrements;
 	}
-
+	
+	public DataManager() {
+	}
+	
 	public DataManager(File file) {
 		dataFile = file;
 		titre = file.getName();

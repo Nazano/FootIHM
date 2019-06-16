@@ -33,8 +33,8 @@ public class Main extends Application {
 			Scene scene = new Scene(root);
 			primaryStage.setScene(scene);
 			primaryStage.show();
-			Main.primaryStage = primaryStage;
 			primaryStage.setOnCloseRequest(confirmCloseEventHandler);
+			Main.primaryStage = primaryStage;		
 			
 		} catch(Exception e) {
 			e.printStackTrace();

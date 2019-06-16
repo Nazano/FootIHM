@@ -1,17 +1,19 @@
 package app;
 
+import java.security.InvalidParameterException;
+
 public class Joueur implements Stats{
 
-	private int id;
-	private int [][] presenceTerrain;
-	private float x_pos ;
-	private float y_pos; 
-	private float heading; 
-	private float direction; 
-	private float energy; 
-	private float speed; 
-	private float total_distance;
-	private int nbPosition;
+	protected int id;
+	protected int [][] presenceTerrain;
+	protected float x_pos ;
+	protected float y_pos; 
+	protected float heading; 
+	protected float direction; 
+	protected float energy; 
+	protected float speed; 
+	protected float total_distance;
+	protected int nbPosition;
 	
 	
 	
@@ -64,7 +66,6 @@ public class Joueur implements Stats{
 	
 	public Joueur(int id, float x_pos, float y_pos, float heading, float direction, float energy, float speed,
 			float total_distance) {
-		super();
 		this.id = id;
 		this.x_pos = x_pos;
 		this.y_pos = y_pos;
@@ -76,6 +77,17 @@ public class Joueur implements Stats{
 
 	}
 	
+	public Joueur(Joueur j) {
+		this.id = j.id;
+		this.x_pos = j.x_pos;
+		this.y_pos = j.y_pos;
+		this.heading = j.heading;
+		this.direction = j.direction;
+		this.energy = j.energy;
+		this.speed = j.speed;
+		this.total_distance = j.total_distance;
+	}
+
 	public void initialiserTerrain() {
 		this.presenceTerrain = new int [150][150];	
 	}
@@ -122,6 +134,20 @@ public class Joueur implements Stats{
 
 	public float getDirection() {
 		return direction;
+	}
+	
+	protected void updateInfos(Joueur j) {
+		if(this.id != j.id) 
+			throw(new InvalidParameterException("Joueurs différents source_id=" + id + " parameter_id=" + "id"));
+		else {
+			this.x_pos = j.x_pos;
+			this.y_pos = j.y_pos;
+			this.heading = j.heading;
+			this.direction = j.direction;
+			this.energy = j.energy;
+			this.speed = j.speed;
+			this.total_distance = j.total_distance;
+		}
 	}
 	
 	

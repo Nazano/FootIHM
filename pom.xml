@@ -11,19 +11,27 @@
   </properties>
   
   <dependencies>
-  <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-<dependency>
-    <groupId>com.opencsv</groupId>
-    <artifactId>opencsv</artifactId>
-    <version>4.0</version>
-</dependency>
+	<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+	<dependency>
+		<groupId>com.opencsv</groupId>
+		<artifactId>opencsv</artifactId>
+		<version>4.0</version>
+	</dependency>
 
-<dependency>
-  <groupId>junit</groupId>
-  <artifactId>junit</artifactId>
-  <version>4.13-beta-1</version>
-</dependency>
- </dependencies>
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>4.13-beta-1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.interactivemesh</groupId>
+		<artifactId>ObjModelImporter</artifactId>
+		<version>1.0</version>
+		<scope>system</scope>
+		<systemPath>${project.basedir}/deps/jimObjModelImporterJFX.jar</systemPath>
+	</dependency>
+  </dependencies>
  
  <build>
  	<plugins>
