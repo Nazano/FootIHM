@@ -4,6 +4,6 @@ public interface Stats {
 
 	public abstract double[][] calculerStats();
 	
-	public abstract void ajouterPresence();
-	
+	public void ajouterPresence();
+	public void ajouterPresence(double x, double y) throws IllegalArgumentException;
 }
