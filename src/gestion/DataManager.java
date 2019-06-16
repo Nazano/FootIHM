@@ -37,9 +37,8 @@ public class DataManager {
 			raw_data = CsvUtils.readCSV(dataFile.getAbsolutePath());
 
 			String currentDate = raw_data.get(0)[0];
-
+			
 			for (String[] l : raw_data) {
-
 				// Si on est dans le même intervalle de temps
 				if (l[0].equals(currentDate)) {
 					Joueur j = rawDataToJoueur(l);
@@ -49,16 +48,21 @@ public class DataManager {
 					currentDate = l[0];
 					enregistrements .add(rec);
 					rec = new Enregistrement();
+					Joueur j = rawDataToJoueur(l);
+					rec.add(j);
+					joueurs.add(j);
 				}
-
+				
 			}
-
 			enregistrements .add(rec);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Fin chargement enregistrements");
+		System.out.println(joueurs);
+		System.out.println(joueurs.size());
+		
 	}
 	
 	public void loadStats() {
