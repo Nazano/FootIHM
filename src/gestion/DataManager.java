@@ -1,126 +1,69 @@
 package gestion;
 
+import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Consumer;
+import java.util.Objects;
 
 import app.Enregistrement;
 import app.Joueur;
 
 public class DataManager {
-	private List<String[]> raw_data;
+	
 	private ArrayList<Enregistrement> enregistrements = new ArrayList<Enregistrement>();
 	private HashSet<Joueur> joueurs = new HashSet<Joueur>(); //Liste des différents joueurs avec leur état en début de partie.
-
+	private File dataFile;
+	private String titre;
 	
 	public ArrayList<Enregistrement> getEnregisrements() {
 		return enregistrements;
 	}
 
-	public DataManager(String path) {
-		try {
-			raw_data = CsvUtils.readCSV(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public DataManager(File file) {
+		dataFile = file;
+		titre = file.getName();
 	}
 	
 	/**
 	 * Trouve l'ensemble des enregistrements contenu dans les donnÃ©es
 	 */
 	public void findEnregistrements() {
-		List<String> formats = Arrays.asList("yyyy-MM-dd HH:mm:ss.SS", "yyyy-MM-dd HH:mm:ss");
-		List<LocalDateTime> dates = new ArrayList<LocalDateTime>();
-		
-		for(String[] l : raw_data) {
-			
-			//Rajoute un zero aux dizaines de milisecondes
-			if(l[1].contains(".")) {
-				String[] splitted = l[0].split("\\.");
-				if(splitted.length == 2 && splitted[1].length() == 1) l[0] = l[0] + "0";
-			}
-			
-			//Récupère toutes les dates
-			for (String format : formats) {
-				try {
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-					dates.add(LocalDateTime.parse(l[0], formatter));
-					break;
-				} catch (DateTimeParseException e) {
-
-				}
-			}
-		}
-		
-		//Crée tous les enregisrements
 		Enregistrement rec = new Enregistrement();
-		int intrevalleTemps = 50;
-		LocalDateTime start = dates.get(0);
-		LocalDateTime end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit());
-		int i = 0;
-		while(start.isBefore(dates.get(dates.size() - 1))){
-			
-			if(dates.get(i).isEqual(start) || (dates.get(i).isAfter(start) && dates.get(i).isBefore(end))) {
-				Joueur j = rawDataToJoueur(raw_data.get(i));
-				rec.add(j);
-				/// ajouter stats 
-				Joueur j2 ;
-				if ((j2 = lastDataJoueur(j.getId()))!= null)
-				{	
-					j.setPresenceTerrain(j2.getPresenceTerrain());
+		List<String[]> raw_data;
+		try {
+			raw_data = CsvUtils.readCSV(dataFile.getAbsolutePath());
+
+			String currentDate = raw_data.get(0)[0];
+
+			for (String[] l : raw_data) {
+
+				// Si on est dans le même intervalle de temps
+				if (l[0].equals(currentDate)) {
+					Joueur j = rawDataToJoueur(l);
+					rec.add(j);
+					joueurs.add(j);
+				} else { // Sinon change d'intervalle et ajoute l'enregistrement à la liste
+					currentDate = l[0];
+					enregistrements .add(rec);
+					rec = new Enregistrement();
 				}
-				j.ajouterPresence();
-				joueurs.add(j);
-				i++;
+
 			}
-			else {
-				enregistrements.add(rec);
-				rec = new Enregistrement();
-				start = end;
-				end = start.plus(intrevalleTemps, ChronoField.MILLI_OF_DAY.getBaseUnit()); 
-			}	
-			
+
+			enregistrements .add(rec);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		/** Debug Code **/
-		
-		int cont=0;
-		
-		for(Enregistrement e : enregistrements)
-		{	
-			cont++;
-			for (Joueur j : e)
-			{
-				if (j.getX_pos() == 65.577209) System.out.println(cont);
-			}
-			
-		}
-		/*
-		System.out.println(enregistrements.get(10000));
-		System.out.println(enregistrements.get(10000).get(5).getX_pos());
-		System.out.println(enregistrements.get(10000).get(5));*/
-		System.out.println("intervalle = "+ intrevalleTemps + " ms");
-		System.out.println("Nombre d'entrées: " + raw_data.size());
-		System.out.println("Nombre d'enregistrements: " + enregistrements.size());
-		double stats = 0;
-		for(Enregistrement e : enregistrements)
-			stats += e.size();
-		System.out.println("Nombre moyen de déplacements par échelle de temps = " + (stats/enregistrements.size()));
-		 /**  **/ 
-		
+		System.out.println("Fin chargement enregistrements");
+	}
+	
+	public void loadStats() {
+		joueurs.stream().forEach(j -> j.initialiserTerrain());
+		enregistrements.stream().forEach(e -> e.stream().forEach(j -> getJoueur(j.getId()).ajouterPresence(j.getX_pos(), j.getY_pos())));
 	}
 	
 	/**
@@ -141,7 +84,16 @@ public class DataManager {
 				);
 	}
 	
-	private Joueur lastDataJoueur(int joueurId)
+	/**
+	 * 
+	 * @param id Id du joueur à chercher
+	 * @return Retourne l'instance du joueur associé à l'id, null si inexistant 
+	 */
+	public Joueur getJoueur(int id) {
+		return joueurs.stream().filter(j -> Objects.equals(j.getId(), new Integer(id))).findFirst().orElse(null);
+	}
+	
+	public Joueur lastDataJoueur(int joueurId)
 	{
 		ListIterator<Enregistrement> iterator = enregistrements.listIterator(enregistrements.size()); // On précise la position initiale de l'iterator. Ici on le place à la fin de la liste
 		while(iterator.hasPrevious()){
@@ -166,42 +118,41 @@ public class DataManager {
 	}
 
 	public Float getPos(int indexEnregistrement, int idJoueur) {
-		Float value = null;
+		/*Float value = null;
 		Enregistrement E = this.enregistrements.get(indexEnregistrement);	
 		for (Joueur j : E)
 		{
 			if (j.getId() == idJoueur) value = j.getX_pos();
-		}
-		
-		return value ;
+		}*/
+		return this.enregistrements.get(indexEnregistrement).stream().filter(j -> Objects.equals(j.getId(), idJoueur)).reduce((first, second) -> second).get().getX_pos();
+		//return value ;
 	}
+	
+	/**
+	 * Trouve la zone du terrain sur lequel un joueur à été le plus présent
+	 * @param idJoueur
+	 * @return
+	 */
+	public Integer getPresenceMax(int idJoueur) {
 
-	public Integer testMaxPos(int idJoueur) {
+		Joueur j = getJoueur(14);
+		int[][] terrain = j.getPresenceTerrain();
+		Integer max = 0;
 		
-		 Joueur J = lastDataJoueur(idJoueur);
-		 int [][] terrain = J.getPresenceTerrain();
-		 Integer max = 0 ;
-		 for (int i=0; i<terrain.length ;i++)
-			{
-				for(int j = 0 ; j<terrain.length;j++)
-				{
-					
-					if (max <  terrain[i][j]) max =terrain[i][j] ;
-					
-				}
+		for (int x = 0; x < terrain.length; x++) {
+			for (int y = 0; y < terrain.length; y++) {
+
+				if (max < terrain[x][y])
+					max = terrain[x][y];
+
 			}
-		 return max;
+		}
+		return max;
 	}
 
-	public Integer MapCorner(int idJoueur) {
-		
-		 Joueur J = lastDataJoueur(idJoueur);
-		 int [][] terrain = J.getPresenceTerrain();
-		return terrain[0][0];
+	public String getTitreMatch() {
+		return titre;
 	}
-	
-	
-	
 	
 	
 }

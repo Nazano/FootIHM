@@ -8,7 +8,6 @@ public class Joueur implements Stats{
 	private float y_pos; 
 	private float heading; 
 	private float direction; 
-
 	private float energy; 
 	private float speed; 
 	private float total_distance;
@@ -39,12 +38,25 @@ public class Joueur implements Stats{
 
 		return stats;
 	}
+	
 	@Override
 	public void ajouterPresence() {
 		int X = (int)x_pos;
 		int Y =(int)y_pos;
 		if (X >0 && Y>0 ) 
 			presenceTerrain[X][Y] =  presenceTerrain[X][Y]++;
+		this.nbPosition ++;
+		
+	} 
+	
+	@Override
+	public void ajouterPresence(double x, double y) {
+		if ((x < 0) || (y < 0))
+			return;
+		int intX = (int) x;
+		int intY = (int) y;
+		
+		presenceTerrain[intX][intY]++;
 		this.nbPosition ++;
 		
 	} 
@@ -61,8 +73,11 @@ public class Joueur implements Stats{
 		this.energy = energy;
 		this.speed = speed;
 		this.total_distance = total_distance;
-		this.presenceTerrain = new int [150][150];
+
+	}
 	
+	public void initialiserTerrain() {
+		this.presenceTerrain = new int [150][150];	
 	}
 
 	public int getId() {
@@ -105,16 +120,5 @@ public class Joueur implements Stats{
 		return y_pos;
 	}
 	
-	public float getDirection() {
-		return direction;
-	}
- 
-	public float getSpeed() {
-		return speed;
-	}
-
-	public float getTotal_distance() {
-		return total_distance;
-	}
-
+	
 }
