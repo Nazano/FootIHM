@@ -119,6 +119,10 @@ public class Joueur implements Stats{
 	public float getY_pos() {
 		return y_pos;
 	}
+
+	public float getDirection() {
+		return direction;
+	}
 	
 	
 }

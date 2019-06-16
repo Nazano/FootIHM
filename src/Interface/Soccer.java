@@ -1,6 +1,7 @@
 package Interface;
 
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -32,8 +33,8 @@ public class Soccer extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-    	
-    	DataManager dm = new DataManager("2013-11-03_tromso_stromsgodset_first.csv");
+    	File file = new File("2013-11-03_tromso_stromsgodset_first.csv");
+    	DataManager dm = new DataManager(file);
 		dm.findEnregistrements();
 		System.out.println("fin chargement données");
 		ArrayList<Enregistrement> E = dm.getEnregisrements();
