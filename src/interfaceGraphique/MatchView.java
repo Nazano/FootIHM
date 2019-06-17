@@ -38,6 +38,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -55,13 +56,16 @@ public class MatchView implements Initializable {
 	private AnimationTimer anim;
 	
 	@FXML
-	private Label lblMinutes, lblSecondes, lblNomMatch, lblInfoMatch, lblJoueurSelec, lblInfoJoueur;
+	private Label lblMinutes, lblNomMatch, lblInfoMatch, lblJoueurSelec, lblInfoJoueur;
 	
 	@FXML
 	private Button btnArret, btnPause, btnPlay, btnVue;
 	
 	@FXML
 	private Pane pane3D;
+	
+	@FXML
+	private AnchorPane anchor3D;
 	
 	@FXML
 	private VBox vBox;
@@ -109,11 +113,13 @@ public class MatchView implements Initializable {
         root3D.getChildren().add(ambientLight);
 
         // Create scene
+        
         SubScene subscene = new SubScene(root3D, 600, 600, true,SceneAntialiasing.BALANCED);
         subscene.setCamera(camera);
         subscene.setFill(Color.gray(0.2));
         pane3D.getChildren().add(subscene);
-
+        subscene.heightProperty().bind(pane3D.heightProperty());
+        subscene.widthProperty().bind(pane3D.widthProperty());
         
 
         
@@ -238,6 +244,11 @@ public class MatchView implements Initializable {
 				double t = (currentNanoTime - startNanoTime) / 50.0 / 1000000.0;
 				lblMinutes.setText(new MatchView().milisecToFormatTime(Double.valueOf(raw_time).longValue()));
 				sliderLecture.setValue(raw_time);
+				StringBuilder sb = new StringBuilder();
+				for(Joueur3D j : players)
+					sb.append(j.toString());
+				lblInfoJoueur.setText(sb.toString());
+				
 				int index = (int) Math.round(t); // désigne l'enregistrment à sélectionner
 
 				for (Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements
@@ -259,8 +270,7 @@ public class MatchView implements Initializable {
 		dm = null;
 		lblInfoMatch.setText("");
 		lblNomMatch.setText("");
-		lblSecondes.setText("00");
-		lblMinutes.setText("00");
+		lblMinutes.setText("00:00");
 		lblInfoJoueur.setText("");
 	}
 	

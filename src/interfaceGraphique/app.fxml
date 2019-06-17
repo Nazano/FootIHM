@@ -19,8 +19,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ScrollPane?>
 
-<VBox fx:id="vBox" prefHeight="600.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="interfaceGraphique.MatchView">
+<VBox fx:id="vBox" prefHeight="800.0" prefWidth="1280" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="interfaceGraphique.MatchView">
   <children>
     <MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
       <menus>
@@ -44,40 +45,43 @@
          <children>
             <SplitPane dividerPositions="0.1833855799373041" prefHeight="80.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <items>
-                  <VBox alignment="TOP_CENTER" prefHeight="292.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
+                  <VBox alignment="TOP_CENTER" prefHeight="292.0" prefWidth="200.0" SplitPane.resizableWithParent="false">
                      <children>
                         <Label fx:id="lblNomMatch" text="Nom du match" textAlignment="CENTER" wrapText="true">
                            <font>
                               <Font size="11.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblInfoMatch" wrapText="true">
+                        <Label fx:id="lblInfoMatch" wrapText="false" minHeight="60.0">
                            <font>
                               <Font size="10.0" />
                            </font>
                         </Label>
                         <Separator prefWidth="200.0" />
                         <Label fx:id="lblJoueurSelec" text="Statistique joueur" textAlignment="CENTER" wrapText="true">
-                           <font>
-                              <Font size="11.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="lblInfoJoueur" wrapText="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>
+	                         <font>
+	                            <Font size="12.0" />
+	                         </font>
+	                    </Label>
+                        <ScrollPane>                     	
+	                        <Label fx:id="lblInfoJoueur" wrapText="true">
+	                           <font>
+	                              <Font size="11.0" />
+	                           </font>
+	                        </Label>
+                        </ScrollPane>
+                        
                      </children>
                   </VBox>
                   <SplitPane dividerPositions="0.8832309043020193" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                      <items>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                        <AnchorPane fx:id="anchor3D" prefHeight="200.0" prefWidth="200.0" >
                            <children>
                               <Pane fx:id="pane3D" prefHeight="467.0" prefWidth="778.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <Button fx:id="btnVue" contentDisplay="TOP" mnemonicParsing="false" text="2D" />
                            </children>
                         </AnchorPane>
-                        <HBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="517.0">
+                        <HBox alignment="CENTER" maxHeight="65.0" prefWidth="517.0">
                            <children>
                               <ComboBox fx:id="comboVitLecture" prefHeight="27.0" prefWidth="90.0" />
                               <Button fx:id="btnArret" mnemonicParsing="false">
@@ -128,9 +132,7 @@
                               <Slider fx:id="sliderLecture" prefHeight="16.0" prefWidth="552.0" />
                               <HBox alignment="CENTER_LEFT" prefHeight="89.0" prefWidth="60.0">
                                  <children>
-                                    <Label fx:id="lblMinutes" text="00" />
-                                    <Label text=":" />
-                                    <Label fx:id="lblSecondes" text="00" />
+                                    <Label fx:id="lblMinutes" text="00:00" />
                                  </children>
                               </HBox>
                            </children>

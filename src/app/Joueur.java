@@ -120,8 +120,13 @@ public class Joueur implements Stats{
 		
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return Integer.toString(id);
+		StringBuilder sb = new StringBuilder();
+		sb.append("Joueur" + id +"\n");
+		sb.append("\tPosition(" + x_pos + "," + y_pos + ")\n");
+		sb.append("\tVitesse = " + speed + " m/s\n");
+		sb.append("\t Distance parourue = " + total_distance + " m\n");
+		sb.append("\tEnergie = " + energy + "\n");
+		return sb.toString();
 	}
 
 	public float getX_pos() {

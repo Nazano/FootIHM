@@ -97,4 +97,9 @@ public class Joueur3D extends Joueur{
 	public Fx3DGroup getBillboard() {
 		return billboard;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 }
