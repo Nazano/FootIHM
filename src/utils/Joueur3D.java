@@ -29,6 +29,7 @@ public class Joueur3D extends Joueur{
 		
 		root3D.getChildren().add(mesh);
     	root3D.getChildren().add(billboard);
+   
 	}
 	
 	private void importerModele3D() {

@@ -16,8 +16,11 @@ import Interface.Soccer;
 import app.Enregistrement;
 import app.Joueur;
 import gestion.DataManager;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -25,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.PointLight;
 import javafx.scene.Scene;
@@ -44,6 +48,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Duration;
 import utils.CameraManager;
 import utils.Draw;
 import utils.Fx3DGroup;
@@ -54,6 +59,9 @@ public class MatchView implements Initializable {
 	private DataManager dm;
 	private ArrayList<Joueur3D> players = new ArrayList<Joueur3D>();
 	private AnimationTimer anim;
+	private Group root3D; 
+	private int speed;
+	
 	
 	@FXML
 	private Label lblMinutes, lblNomMatch, lblInfoMatch, lblJoueurSelec, lblInfoJoueur;
@@ -85,7 +93,7 @@ public class MatchView implements Initializable {
 		chargerOptionComboBox();
 		
 		//Create a Pane et graph scene root for the 3D content
-        Group root3D = new Group();
+        root3D = new Group();
         
         //Create Draw 
         Draw draw = new Draw(); 
@@ -151,7 +159,20 @@ public class MatchView implements Initializable {
 			@Override
 			public void handle(ActionEvent event) {
 				if(!Objects.isNull(dm))
-					anim.start();	
+				{ 
+					if(Objects.isNull(anim))
+						animation(camera, root3D);
+					if (!comboVitLecture.getSelectionModel().isEmpty())
+					{
+						speed = comboVitLecture.getSelectionModel().getSelectedItem().getVitesse();
+						System.out.println(speed);
+					}else{
+						System.out.println("comboxvide");
+						speed = 1;
+					}
+						
+					anim.start();
+				}		
 				System.out.println("Demarrer");
 			}
 
@@ -168,7 +189,36 @@ public class MatchView implements Initializable {
 			}
 		});
 		
+		btnArret.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Arret Simulation");
+				if(!Objects.isNull(dm))
+					arret();
+			}
+		});
+	
+
+	comboVitLecture.setOnAction(new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						speed = comboVitLecture.getSelectionModel().getSelectedItem().getVitesse();
+						System.out.println("X" + speed);
+					}
+				});
+	
+/*	sliderLecture.valueProperty().addListener(new ChangeListener<Number>() {
+            
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				
+				
+			}
+        });
 		
+	*/	
 		
 	}
 	
@@ -235,13 +285,13 @@ public class MatchView implements Initializable {
 		double tMax = E.size()*50;
 		sliderLecture.setMajorTickUnit(500);
 		sliderLecture.setMax(tMax);
-		
 		anim = new AnimationTimer() {
 
 			@Override
 			public void handle(long currentNanoTime) {
 				double raw_time = (currentNanoTime - startNanoTime) / 1000000.0;
-				double t = (currentNanoTime - startNanoTime) / 50.0 / 1000000.0;
+				double t = (currentNanoTime - startNanoTime)/ 50.0 / 1000000.0;
+				
 				lblMinutes.setText(new MatchView().milisecToFormatTime(Double.valueOf(raw_time).longValue()));
 				sliderLecture.setValue(raw_time);
 				StringBuilder sb = new StringBuilder();
@@ -250,8 +300,8 @@ public class MatchView implements Initializable {
 				lblInfoJoueur.setText(sb.toString());
 				
 				int index = (int) Math.round(t); // désigne l'enregistrment à sélectionner
-
-				for (Joueur j : E.get(index))// parcours les joueurs dans l'enregistrements
+				int indice = index*speed ;
+				for (Joueur j : E.get(indice))// parcours les joueurs dans l'enregistrements
 				{
 					if (players.contains(j)) { // le joueur existe déjà : on le déplace
 						Joueur3D j3D = players.stream().filter(j3 -> j3.equals(j)).findFirst().get();
@@ -261,7 +311,7 @@ public class MatchView implements Initializable {
 						players.add(new Joueur3D(j, camera, root3D));
 
 				}
-
+				
 			}
 		};
 	}
@@ -283,6 +333,25 @@ public class MatchView implements Initializable {
 				));
 	}
 	
+	public void arret()
+	{
+
+		anim.stop();
+	
+		for(Joueur3D j : players)		
+		{
+			j.getMesh().getChildren().clear();
+			j.getBillboard().getChildren().clear();
+		}
+		
+		lblInfoJoueur.setText("");
+		players.clear();
+		sliderLecture.setValue(0);
+		anim =null;
+		
+	}
+	
+	
 	class VitesseLecture {
 		int vitesse;
 		
@@ -294,6 +363,11 @@ public class MatchView implements Initializable {
 		public String toString() {
 			return "x" + vitesse;
 		}
+
+		public int getVitesse() {
+			return vitesse;
+		}
+		
 		
 	}
 }
