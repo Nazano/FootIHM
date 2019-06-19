@@ -1,4 +1,4 @@
-package gestion;
+package app.gestion;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 
-import app.Enregistrement;
-import app.Joueur;
+import app.utils.Enregistrement;
+import app.utils.Joueur;
 
 public class DataManager {
 	

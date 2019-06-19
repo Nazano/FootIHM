@@ -12,10 +12,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import Interface.Soccer;
-import app.Enregistrement;
-import app.Joueur;
-import gestion.DataManager;
+import app.gestion.DataManager;
+import app.utils.Enregistrement;
+import app.utils.Joueur;
+import interfaceGraphique.utils.CameraManager;
+import interfaceGraphique.utils.Draw;
+import interfaceGraphique.utils.Fx3DGroup;
+import interfaceGraphique.utils.Joueur3D;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -49,10 +52,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
-import utils.CameraManager;
-import utils.Draw;
-import utils.Fx3DGroup;
-import utils.Joueur3D;
 
 public class MatchView implements Initializable {
 	
@@ -198,6 +197,11 @@ public class MatchView implements Initializable {
 					arret();
 			}
 		});
+		
+		sliderLecture.valueProperty().addListener(n -> {
+			if(sliderLecture.getValue() == sliderLecture.getMax())
+				arret();
+		});
 	
 
 	comboVitLecture.setOnAction(new EventHandler<ActionEvent>() {
@@ -291,15 +295,20 @@ public class MatchView implements Initializable {
 			public void handle(long currentNanoTime) {
 				double raw_time = (currentNanoTime - startNanoTime) / 1000000.0;
 				double t = (currentNanoTime - startNanoTime)/ 50.0 / 1000000.0;
+				int index = (int) Math.round(t); // désigne l'enregistrment à sélectionner
 				
 				lblMinutes.setText(new MatchView().milisecToFormatTime(Double.valueOf(raw_time).longValue()));
-				sliderLecture.setValue(raw_time);
+				if(sliderLecture.isValueChanging())
+					index = (int) sliderLecture.getValue()/50;
+				else 
+					sliderLecture.setValue(raw_time);
+				
 				StringBuilder sb = new StringBuilder();
 				for(Joueur3D j : players)
 					sb.append(j.toString());
 				lblInfoJoueur.setText(sb.toString());
 				
-				int index = (int) Math.round(t); // désigne l'enregistrment à sélectionner
+				
 				int indice = index*speed ;
 				for (Joueur j : E.get(indice))// parcours les joueurs dans l'enregistrements
 				{
@@ -311,7 +320,6 @@ public class MatchView implements Initializable {
 						players.add(new Joueur3D(j, camera, root3D));
 
 				}
-				
 			}
 		};
 	}

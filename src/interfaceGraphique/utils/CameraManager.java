@@ -1,4 +1,4 @@
-package utils;
+package interfaceGraphique.utils;
 
 import javafx.event.EventHandler;
 import javafx.scene.*;

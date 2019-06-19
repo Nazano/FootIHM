@@ -1,4 +1,4 @@
-package utils;
+package interfaceGraphique.utils;
 
 import java.util.Collection;
 

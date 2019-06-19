@@ -1,4 +1,4 @@
-package gestion;
+package app.gestion;
 
 import java.io.File;
 import java.io.FileReader;

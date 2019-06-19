@@ -1,10 +1,10 @@
-package utils;
+package interfaceGraphique.utils;
 
 import java.net.URL;
 
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 
-import app.Joueur;
+import app.utils.Joueur;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;

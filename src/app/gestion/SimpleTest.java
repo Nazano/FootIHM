@@ -1,4 +1,4 @@
-package gestion;
+package app.gestion;
 
 import static org.junit.Assert.*;
 
@@ -7,7 +7,7 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
-import app.Joueur;
+import app.utils.Joueur;
 
 public class SimpleTest {
 
